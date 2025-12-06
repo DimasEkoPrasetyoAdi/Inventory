@@ -14,11 +14,9 @@ func NewStokRepository(db *gorm.DB) *StokRepository {
 	return &StokRepository{DB: db}
 }
 
-// GetAllStok: ambil semua stok + informasi barang
 func (r *StokRepository) GetAllStok() ([]models.Stok, error) {
 	var stoks []models.Stok
 
-	// Preload("Barang") → ikut ambil data barang terkait
 	if err := r.DB.
 		Preload("Barang").
 		Order("id").
@@ -27,4 +25,17 @@ func (r *StokRepository) GetAllStok() ([]models.Stok, error) {
 	}
 
 	return stoks, nil
+}
+
+func (r *StokRepository) GetStokByBarangID(barangID uint) (*models.Stok, error) {
+	var stok models.Stok
+
+	if err := r.DB.
+		Preload("Barang").
+		Where("barang_id = ?", barangID).
+		First(&stok).Error; err != nil {
+		return nil, err
+	}
+
+	return &stok, nil
 }

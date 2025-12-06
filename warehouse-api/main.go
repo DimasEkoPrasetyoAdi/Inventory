@@ -29,6 +29,7 @@ func main() {
 		api.POST("/barang", barangHandler.CreateBarang)
 		api.PUT("/barang/:id", barangHandler.UpdateBarang)
 		api.GET("/stok", stokHandler.GetAllStok)
+		api.GET("/stok/:barang_id", stokHandler.GetStokByBarang)
 	}
 
 	log.Println("🚀 Server running on :8080")
