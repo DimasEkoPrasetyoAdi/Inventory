@@ -18,6 +18,9 @@ func main() {
 	barangRepo := repositories.NewBarangRepository(config.DB)
 	barangHandler := handlers.NewBarangHandler(barangRepo)
 
+	stokRepo := repositories.NewStokRepository(config.DB)
+	stokHandler := handlers.NewStokHandler(stokRepo)
+
 	api := router.Group("/api")
 	{
 		api.GET("/barang", barangHandler.GetAllBarang)
@@ -25,6 +28,7 @@ func main() {
 		api.GET("/barang/stok", barangHandler.GetBarangWithStok)
 		api.POST("/barang", barangHandler.CreateBarang)
 		api.PUT("/barang/:id", barangHandler.UpdateBarang)
+		api.GET("/stok", stokHandler.GetAllStok)
 	}
 
 	log.Println("🚀 Server running on :8080")
