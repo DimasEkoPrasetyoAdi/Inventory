@@ -1,17 +1,17 @@
 package config
 
 import (
-	"database/sql"
 	"fmt"
 	"log"
 	"os"
 	"strconv"
 
 	"github.com/joho/godotenv"
-	_ "github.com/lib/pq"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
 )
 
-var DB *sql.DB
+var DB *gorm.DB
 
 func InitDB() {
 
@@ -36,16 +36,12 @@ func InitDB() {
 		host, port, user, password, dbname, sslmode,
 	)
 
-	db, err := sql.Open("postgres", dsn)
+	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
 		log.Fatalf("Failed to open db connection: %v", err)
 	}
 
-	if err := db.Ping(); err != nil {
-		log.Fatalf("Failed to ping database: %v", err)
-	}
-
-	log.Println("✅ Connected to database")
+	log.Println("✅ Connected to database (GORM)")
 	DB = db
 }
 
