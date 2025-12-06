@@ -23,6 +23,15 @@ type CreateBarangRequest struct {
 	HargaJual  float64 `json:"harga_jual"`
 }
 
+type UpdateBarangRequest struct {
+	KodeBarang string  `json:"kode_barang" binding:"required"`
+	NamaBarang string  `json:"nama_barang" binding:"required"`
+	Deskripsi  string  `json:"deskripsi"`
+	Satuan     string  `json:"satuan" binding:"required"`
+	HargaBeli  float64 `json:"harga_beli"`
+	HargaJual  float64 `json:"harga_jual"`
+}
+
 func NewBarangHandler(repo *repositories.BarangRepository) *BarangHandler {
 	return &BarangHandler{Repo: repo}
 }
@@ -149,5 +158,73 @@ func (h *BarangHandler) CreateBarang(c *gin.Context) {
 		"success": true,
 		"message": "Barang created successfully",
 		"data":    barang,
+	})
+}
+
+func (h *BarangHandler) UpdateBarang(c *gin.Context) {
+	idParam := c.Param("id")
+
+	idInt, err := strconv.Atoi(idParam)
+	if err != nil || idInt < 1 {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"success": false,
+			"message": "Invalid id parameter",
+			"data":    nil,
+		})
+		return
+	}
+	id := uint(idInt)
+
+	var req UpdateBarangRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusUnprocessableEntity, gin.H{
+			"success": false,
+			"message": "Invalid input data",
+			"data":    nil,
+		})
+		return
+	}
+
+	if req.HargaBeli < 0 || req.HargaJual < 0 {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"success": false,
+			"message": "Harga tidak boleh negatif",
+			"data":    nil,
+		})
+		return
+	}
+
+	updateData := models.Barang{
+		KodeBarang: req.KodeBarang,
+		NamaBarang: req.NamaBarang,
+		Deskripsi:  req.Deskripsi,
+		Satuan:     req.Satuan,
+		HargaBeli:  req.HargaBeli,
+		HargaJual:  req.HargaJual,
+	}
+
+	updatedBarang, err := h.Repo.UpdateBarang(id, &updateData)
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			c.JSON(http.StatusNotFound, gin.H{
+				"success": false,
+				"message": "Barang tidak ditemukan",
+				"data":    nil,
+			})
+			return
+		}
+
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"success": false,
+			"message": "Failed to update barang",
+			"data":    nil,
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"message": "Barang updated successfully",
+		"data":    updatedBarang,
 	})
 }
