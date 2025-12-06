@@ -2,8 +2,11 @@ package handlers
 
 import (
 	"net/http"
+	"strconv"
 	"warehouse-api/repositories"
+
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 )
 
 type BarangHandler struct {
@@ -29,5 +32,47 @@ func (h *BarangHandler) GetAllBarang(c *gin.Context) {
 		"success": true,
 		"message": "Data retrieved successfully",
 		"data":    barangs,
+	})
+}
+
+func (h *BarangHandler) GetBarangByID(c *gin.Context) {
+	idParam := c.Param("id")
+
+	idInt, err := strconv.Atoi(idParam)
+	if err != nil || idInt < 1 {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"success": false,
+			"message": "Invalid id parameter",
+			"data":    nil,
+		})
+		return
+	}
+
+	id := uint(idInt)
+
+	barang, err := h.Repo.GetBarangByID(id)
+	if err != nil {
+
+		if err == gorm.ErrRecordNotFound {
+			c.JSON(http.StatusNotFound, gin.H{
+				"success": false,
+				"message": "Barang tidak ditemukan",
+				"data":    nil,
+			})
+			return
+		}
+
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"success": false,
+			"message": "Failed to get barang detail",
+			"data":    nil,
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"message": "Data retrieved successfully",
+		"data":    barang,
 	})
 }

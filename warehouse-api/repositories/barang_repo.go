@@ -24,3 +24,15 @@ func (r *BarangRepository) GetAllBarang() ([]models.Barang, error) {
 
 	return barangs, nil
 }
+
+func (r *BarangRepository) GetBarangByID(id uint) (*models.Barang, error) {
+	var barang models.Barang
+	
+	if err := r.DB.
+		Where("id = ?", id).
+		First(&barang).Error; err != nil {
+		return nil, err
+	}
+
+	return &barang, nil
+}
