@@ -56,3 +56,24 @@ func (r *BarangRepository) CreateBarang(barang *models.Barang) error {
 	}
 	return nil
 }
+
+func (r *BarangRepository) UpdateBarang(id uint, data *models.Barang) (*models.Barang, error) {
+	var barang models.Barang
+
+	if err := r.DB.First(&barang, id).Error; err != nil {
+		return nil, err
+	}
+
+	barang.KodeBarang = data.KodeBarang
+	barang.NamaBarang = data.NamaBarang
+	barang.Deskripsi = data.Deskripsi
+	barang.Satuan = data.Satuan
+	barang.HargaBeli = data.HargaBeli
+	barang.HargaJual = data.HargaJual
+
+	if err := r.DB.Save(&barang).Error; err != nil {
+		return nil, err
+	}
+
+	return &barang, nil
+}
