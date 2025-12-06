@@ -20,6 +20,7 @@ func main() {
 	api := router.Group("/api")
 	{
 		api.GET("/barang", barangHandler.GetAllBarang)
+		api.GET("/barang/:id", barangHandler.GetBarangByID)
 	}
 
 	log.Println("🚀 Server running on :8080")
