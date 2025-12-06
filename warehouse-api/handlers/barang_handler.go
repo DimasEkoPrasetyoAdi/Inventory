@@ -3,6 +3,7 @@ package handlers
 import (
 	"net/http"
 	"strconv"
+	"warehouse-api/models"
 	"warehouse-api/repositories"
 
 	"github.com/gin-gonic/gin"
@@ -11,6 +12,15 @@ import (
 
 type BarangHandler struct {
 	Repo *repositories.BarangRepository
+}
+
+type CreateBarangRequest struct {
+	KodeBarang string  `json:"kode_barang" binding:"required"`
+	NamaBarang string  `json:"nama_barang" binding:"required"`
+	Deskripsi  string  `json:"deskripsi"`
+	Satuan     string  `json:"satuan" binding:"required"`
+	HargaBeli  float64 `json:"harga_beli"`
+	HargaJual  float64 `json:"harga_jual"`
 }
 
 func NewBarangHandler(repo *repositories.BarangRepository) *BarangHandler {
@@ -92,5 +102,52 @@ func (h *BarangHandler) GetBarangWithStok(c *gin.Context) {
 		"success": true,
 		"message": "Data retrieved successfully",
 		"data":    stokList,
+	})
+}
+
+func (h *BarangHandler) CreateBarang(c *gin.Context) {
+	var req CreateBarangRequest
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusUnprocessableEntity, gin.H{
+			"success": false,
+			"message": "Invalid input data",
+			"data":    nil,
+		})
+		return
+	}
+
+	if req.HargaBeli < 0 || req.HargaJual < 0 {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"success": false,
+			"message": "Harga tidak boleh negatif",
+			"data":    nil,
+		})
+		return
+	}
+
+	barang := models.Barang{
+		KodeBarang: req.KodeBarang,
+		NamaBarang: req.NamaBarang,
+		Deskripsi:  req.Deskripsi,
+		Satuan:     req.Satuan,
+		HargaBeli:  req.HargaBeli,
+		HargaJual:  req.HargaJual,
+	}
+
+	if err := h.Repo.CreateBarang(&barang); err != nil {
+
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"success": false,
+			"message": "Failed to create barang",
+			"data":    nil,
+		})
+		return
+	}
+
+	c.JSON(http.StatusCreated, gin.H{
+		"success": true,
+		"message": "Barang created successfully",
+		"data":    barang,
 	})
 }

@@ -49,3 +49,10 @@ func (r *BarangRepository) GetBarangWithStok() ([]models.Stok, error) {
 
 	return stokList, nil
 }
+
+func (r *BarangRepository) CreateBarang(barang *models.Barang) error {
+	if err := r.DB.Create(barang).Error; err != nil {
+		return err
+	}
+	return nil
+}
