@@ -76,3 +76,21 @@ func (h *BarangHandler) GetBarangByID(c *gin.Context) {
 		"data":    barang,
 	})
 }
+
+func (h *BarangHandler) GetBarangWithStok(c *gin.Context) {
+	stokList, err := h.Repo.GetBarangWithStok()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"success": false,
+			"message": "Failed to get barang stok",
+			"data":    nil,
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"message": "Data retrieved successfully",
+		"data":    stokList,
+	})
+}

@@ -27,7 +27,7 @@ func (r *BarangRepository) GetAllBarang() ([]models.Barang, error) {
 
 func (r *BarangRepository) GetBarangByID(id uint) (*models.Barang, error) {
 	var barang models.Barang
-	
+
 	if err := r.DB.
 		Where("id = ?", id).
 		First(&barang).Error; err != nil {
@@ -35,4 +35,17 @@ func (r *BarangRepository) GetBarangByID(id uint) (*models.Barang, error) {
 	}
 
 	return &barang, nil
+}
+
+func (r *BarangRepository) GetBarangWithStok() ([]models.Stok, error) {
+	var stokList []models.Stok
+
+	if err := r.DB.
+		Preload("Barang").
+		Order("id").
+		Find(&stokList).Error; err != nil {
+		return nil, err
+	}
+
+	return stokList, nil
 }
