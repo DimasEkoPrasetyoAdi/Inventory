@@ -21,6 +21,9 @@ func main() {
 	stokRepo := repositories.NewStokRepository(config.DB)
 	stokHandler := handlers.NewStokHandler(stokRepo)
 
+	historyRepo := repositories.NewHistoryStokRepository(config.DB)
+	historyHandler := handlers.NewHistoryStokHandler(historyRepo)
+
 	api := router.Group("/api")
 	{
 		api.GET("/barang", barangHandler.GetAllBarang)
@@ -30,6 +33,8 @@ func main() {
 		api.PUT("/barang/:id", barangHandler.UpdateBarang)
 		api.GET("/stok", stokHandler.GetAllStok)
 		api.GET("/stok/:barang_id", stokHandler.GetStokByBarang)
+		api.GET("/history-stok", historyHandler.GetAllHistory)
+		api.GET("/history-stok/:barang_id", historyHandler.GetHistoryByBarang)
 	}
 
 	log.Println("🚀 Server running on :8080")
