@@ -23,6 +23,7 @@ func main() {
 		api.GET("/barang", barangHandler.GetAllBarang)
 		api.GET("/barang/:id", barangHandler.GetBarangByID)
 		api.GET("/barang/stok", barangHandler.GetBarangWithStok)
+		api.POST("/barang", barangHandler.CreateBarang)
 	}
 
 	log.Println("🚀 Server running on :8080")
