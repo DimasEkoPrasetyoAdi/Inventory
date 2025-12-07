@@ -2,9 +2,12 @@ package handlers
 
 import (
 	"net/http"
+	"strconv"
 	"warehouse-api/models"
 	"warehouse-api/repositories"
+
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 )
 
 type PembelianHandler struct {
@@ -28,7 +31,6 @@ type CreatePembelianRequest struct {
 	Items    []PembelianItemRequest `json:"items" binding:"required"`
 }
 
-
 func (h *PembelianHandler) CreatePembelian(c *gin.Context) {
 	var req CreatePembelianRequest
 
@@ -50,18 +52,15 @@ func (h *PembelianHandler) CreatePembelian(c *gin.Context) {
 		return
 	}
 
-	
 	header := models.PembelianHeader{
 		NoFaktur: req.NoFaktur,
 		Supplier: req.Supplier,
 		UserID:   req.UserID,
-		
 	}
 
-	
 	var details []models.PembelianDetail
 	for _, item := range req.Items {
-		
+
 		if item.Qty <= 0 || item.Harga < 0 {
 			c.JSON(http.StatusBadRequest, gin.H{
 				"success": false,
@@ -79,10 +78,9 @@ func (h *PembelianHandler) CreatePembelian(c *gin.Context) {
 		details = append(details, detail)
 	}
 
-	
 	result, err := h.Repo.CreatePembelian(&header, details)
 	if err != nil {
-		
+
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"success": false,
 			"message": "Failed to create pembelian",
@@ -98,11 +96,9 @@ func (h *PembelianHandler) CreatePembelian(c *gin.Context) {
 	})
 }
 
-
-
 func (h *PembelianHandler) GetAllPembelian(c *gin.Context) {
-	startDate := c.Query("start_date") 
-	endDate := c.Query("end_date")     
+	startDate := c.Query("start_date")
+	endDate := c.Query("end_date")
 
 	pembelians, err := h.Repo.GetAllPembelian(startDate, endDate)
 	if err != nil {
@@ -123,5 +119,45 @@ func (h *PembelianHandler) GetAllPembelian(c *gin.Context) {
 			"start_date": startDate,
 			"end_date":   endDate,
 		},
+	})
+}
+
+func (h *PembelianHandler) GetPembelianByID(c *gin.Context) {
+	idParam := c.Param("id")
+
+	idInt, err := strconv.Atoi(idParam)
+	if err != nil || idInt < 1 {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"success": false,
+			"message": "Invalid id parameter",
+			"data":    nil,
+		})
+		return
+	}
+	id := uint(idInt)
+
+	pembelian, err := h.Repo.GetPembelianByID(id)
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			c.JSON(http.StatusNotFound, gin.H{
+				"success": false,
+				"message": "Pembelian tidak ditemukan",
+				"data":    nil,
+			})
+			return
+		}
+
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"success": false,
+			"message": "Failed to get pembelian detail",
+			"data":    nil,
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"message": "Data retrieved successfully",
+		"data":    pembelian,
 	})
 }
