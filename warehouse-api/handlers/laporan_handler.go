@@ -39,3 +39,23 @@ func (h *LaporanHandler) GetLaporanStok(c *gin.Context) {
 		"meta":    gin.H{"total": len(stoks)},
 	})
 }
+
+
+func (h *LaporanHandler) GetLaporanPenjualan(c *gin.Context) {
+	startDate := c.Query("start_date")
+	endDate := c.Query("end_date")
+
+	data, total, err := h.Repo.GetPenjualanReport(startDate, endDate)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "Failed to get penjualan report", "data": nil})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"message": "Laporan penjualan retrieved",
+		"data":    data,
+		"meta": gin.H{"total_records": len(data), "grand_total": total, "start_date": startDate, "end_date": endDate},
+	})
+}
+
