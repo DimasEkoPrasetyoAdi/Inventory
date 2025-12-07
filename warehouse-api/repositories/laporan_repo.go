@@ -62,3 +62,32 @@ func (r *LaporanRepository) GetPenjualanReport(startDate, endDate string) ([]mod
 
 	return penjualans, grandTotal, nil
 }
+
+func (r *LaporanRepository) GetPembelianReport(startDate, endDate string) ([]models.PembelianHeader, float64, error) {
+	var pembelians []models.PembelianHeader
+	tx := r.DB.Preload("User").Preload("Details").Preload("Details.Barang").Model(&models.PembelianHeader{}).Order("created_at DESC")
+
+	if startDate != "" {
+		if t, err := time.Parse("2006-01-02", startDate); err == nil {
+			tx = tx.Where("created_at >= ?", t)
+		}
+	}
+	if endDate != "" {
+		if t, err := time.Parse("2006-01-02", endDate); err == nil {
+			t = t.Add(24 * time.Hour)
+			tx = tx.Where("created_at < ?", t)
+		}
+	}
+
+	if err := tx.Find(&pembelians).Error; err != nil {
+		return nil, 0, err
+	}
+
+	var total float64
+	for _, p := range pembelians {
+		total += p.Total
+	}
+
+	return pembelians, total, nil
+}
+
