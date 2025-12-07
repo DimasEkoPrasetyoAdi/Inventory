@@ -101,7 +101,7 @@ func (h *PenjualanHandler) CreatePenjualan(c *gin.Context) {
 	})
 }
 
-/
+
 func (h *PenjualanHandler) GetAllPenjualan(c *gin.Context) {
 	startDate := c.Query("start_date") 
 	endDate := c.Query("end_date")     
