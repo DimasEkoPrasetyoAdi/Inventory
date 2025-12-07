@@ -5,7 +5,6 @@ import (
 	"warehouse-api/config"
 	"warehouse-api/handlers"
 	"warehouse-api/repositories"
-
 	"github.com/gin-gonic/gin"
 )
 
@@ -27,6 +26,9 @@ func main() {
 	pembelianRepo := repositories.NewPembelianRepository((config.DB))
 	pembelianHandler := handlers.NewPembelianHandler(pembelianRepo)
 
+	penjualanRepo := repositories.NewPenjualanRepository(config.DB)
+	penjualanHandler := handlers.NewPenjualanHandler(penjualanRepo)
+
 	api := router.Group("/api")
 	{
 		api.GET("/barang", barangHandler.GetAllBarang)
@@ -41,6 +43,7 @@ func main() {
 		api.POST("/pembelian", pembelianHandler.CreatePembelian)
 		api.GET("/pembelian", pembelianHandler.GetAllPembelian)
 		api.GET("/pembelian/:id", pembelianHandler.GetPembelianByID)
+		api.POST("/penjualan", penjualanHandler.CreatePenjualan)
 	}
 
 	log.Println("🚀 Server running on :8080")
