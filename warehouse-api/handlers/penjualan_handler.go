@@ -170,4 +170,24 @@ func (h *PenjualanHandler) GetPenjualanByID(c *gin.Context) {
 	})
 }
 
+// GET /api/laporan/pembelian?start_date=...&end_date=...
+func (h *LaporanHandler) GetLaporanPembelian(c *gin.Context) {
+	startDate := c.Query("start_date")
+	endDate := c.Query("end_date")
+
+	data, total, err := h.Repo.GetPembelianReport(startDate, endDate)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "Failed to get pembelian report", "data": nil})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"message": "Laporan pembelian retrieved",
+		"data":    data,
+		"meta": gin.H{"total_records": len(data), "grand_total": total, "start_date": startDate, "end_date": endDate},
+	})
+}
+
+
 
