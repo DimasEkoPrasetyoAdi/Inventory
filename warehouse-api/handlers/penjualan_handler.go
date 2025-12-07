@@ -4,8 +4,9 @@ import (
 	"net/http"
 	"warehouse-api/models"
 	"warehouse-api/repositories"
-
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
+	"strconv"
 )
 
 type PenjualanHandler struct {
@@ -99,3 +100,74 @@ func (h *PenjualanHandler) CreatePenjualan(c *gin.Context) {
 		"data":    result,
 	})
 }
+
+/
+func (h *PenjualanHandler) GetAllPenjualan(c *gin.Context) {
+	startDate := c.Query("start_date") 
+	endDate := c.Query("end_date")     
+
+	penjualans, err := h.Repo.GetAllPenjualan(startDate, endDate)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"success": false,
+			"message": "Failed to get penjualan data",
+			"data":    nil,
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"message": "Data retrieved successfully",
+		"data":    penjualans,
+		"meta": gin.H{
+			"total":      len(penjualans),
+			"start_date": startDate,
+			"end_date":   endDate,
+		},
+	})
+}
+
+
+
+func (h *PenjualanHandler) GetPenjualanByID(c *gin.Context) {
+	idParam := c.Param("id")
+
+	idInt, err := strconv.Atoi(idParam)
+	if err != nil || idInt < 1 {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"success": false,
+			"message": "Invalid id parameter",
+			"data":    nil,
+		})
+		return
+	}
+	id := uint(idInt)
+
+	penjualan, err := h.Repo.GetPenjualanByID(id)
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			c.JSON(http.StatusNotFound, gin.H{
+				"success": false,
+				"message": "Penjualan tidak ditemukan",
+				"data":    nil,
+			})
+			return
+		}
+
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"success": false,
+			"message": "Failed to get penjualan detail",
+			"data":    nil,
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"message": "Data retrieved successfully",
+		"data":    penjualan,
+	})
+}
+
+
