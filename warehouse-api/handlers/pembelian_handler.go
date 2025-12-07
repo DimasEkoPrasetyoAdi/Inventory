@@ -2,10 +2,8 @@ package handlers
 
 import (
 	"net/http"
-
 	"warehouse-api/models"
 	"warehouse-api/repositories"
-
 	"github.com/gin-gonic/gin"
 )
 
@@ -97,5 +95,33 @@ func (h *PembelianHandler) CreatePembelian(c *gin.Context) {
 		"success": true,
 		"message": "Pembelian created successfully",
 		"data":    result,
+	})
+}
+
+
+
+func (h *PembelianHandler) GetAllPembelian(c *gin.Context) {
+	startDate := c.Query("start_date") 
+	endDate := c.Query("end_date")     
+
+	pembelians, err := h.Repo.GetAllPembelian(startDate, endDate)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"success": false,
+			"message": "Failed to get pembelian data",
+			"data":    nil,
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"message": "Data retrieved successfully",
+		"data":    pembelians,
+		"meta": gin.H{
+			"total":      len(pembelians),
+			"start_date": startDate,
+			"end_date":   endDate,
+		},
 	})
 }

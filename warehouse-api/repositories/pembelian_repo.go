@@ -2,10 +2,9 @@ package repositories
 
 import (
 	"fmt"
-
 	"warehouse-api/models"
-
 	"gorm.io/gorm"
+	"time"
 )
 
 type PembelianRepository struct {
@@ -107,4 +106,33 @@ func (r *PembelianRepository) CreatePembelian(header *models.PembelianHeader, de
 	}
 
 	return &result, nil
+}
+
+func (r *PembelianRepository) GetAllPembelian(startDate, endDate string) ([]models.PembelianHeader, error) {
+	var pembelians []models.PembelianHeader
+
+	tx := r.DB.
+		Preload("User").
+		Preload("Details").
+		Preload("Details.Barang").
+		Order("created_at DESC")
+
+	if startDate != "" {
+		if t, err := time.Parse("2006-01-02", startDate); err == nil {
+			tx = tx.Where("created_at >= ?", t)
+		}
+	}
+
+	if endDate != "" {
+		if t, err := time.Parse("2006-01-02", endDate); err == nil {
+			t = t.Add(24 * time.Hour)
+			tx = tx.Where("created_at < ?", t)
+		}
+	}
+
+	if err := tx.Find(&pembelians).Error; err != nil {
+		return nil, err
+	}
+
+	return pembelians, nil
 }
