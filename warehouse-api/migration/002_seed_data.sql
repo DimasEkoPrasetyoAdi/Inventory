@@ -1,8 +1,8 @@
 -- Insert Users
 INSERT INTO users (username, password, email, full_name, role) VALUES
-('admin', '$2a$10$xyz123', 'admin@warehouse.com', 'Administrator System', 'admin'),
-('staff1', '$2a$10$xyz456', 'staff1@warehouse.com', 'Staff Gudang A', 'staff'),
-('staff2', '$2a$10$xyz789', 'staff2@warehouse.com', 'Staff Gudang B', 'staff');
+('admin', 'admin123', 'admin@warehouse.com', 'Administrator System', 'admin'),
+('staff1', 'staff123a', 'staff1@warehouse.com', 'Staff Gudang A', 'staff'),
+('staff2', 'staff123b', 'staff2@warehouse.com', 'Staff Gudang B', 'staff');
 
 -- Insert Master Barang
 INSERT INTO master_barang (kode_barang, nama_barang, deskripsi, satuan, harga_beli, harga_jual) VALUES
