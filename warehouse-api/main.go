@@ -50,6 +50,7 @@ func main() {
 		api.GET("/penjualan", penjualanHandler.GetAllPenjualan)
 		api.GET("/penjualan/:id", penjualanHandler.GetPenjualanByID)
 		api.GET("/laporan/stok", laporanHandler.GetLaporanStok)
+		api.GET("/laporan/penjualan", laporanHandler.GetLaporanPenjualan)
 	}
 
 	log.Println("🚀 Server running on :8080")
