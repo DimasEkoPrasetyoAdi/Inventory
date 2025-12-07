@@ -5,6 +5,7 @@ import (
 	"warehouse-api/config"
 	"warehouse-api/handlers"
 	"warehouse-api/repositories"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -44,6 +45,8 @@ func main() {
 		api.GET("/pembelian", pembelianHandler.GetAllPembelian)
 		api.GET("/pembelian/:id", pembelianHandler.GetPembelianByID)
 		api.POST("/penjualan", penjualanHandler.CreatePenjualan)
+		api.GET("/penjualan", penjualanHandler.GetAllPenjualan)
+		api.GET("/penjualan/:id", penjualanHandler.GetPenjualanByID)
 	}
 
 	log.Println("🚀 Server running on :8080")
