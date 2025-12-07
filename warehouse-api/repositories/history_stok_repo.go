@@ -14,7 +14,6 @@ func NewHistoryStokRepository(db *gorm.DB) *HistoryStokRepository {
 	return &HistoryStokRepository{DB: db}
 }
 
-
 func (r *HistoryStokRepository) GetAllHistory() ([]models.HistoryStok, error) {
 	var histories []models.HistoryStok
 
@@ -28,7 +27,6 @@ func (r *HistoryStokRepository) GetAllHistory() ([]models.HistoryStok, error) {
 
 	return histories, nil
 }
-
 
 func (r *HistoryStokRepository) GetHistoryByBarangID(barangID uint) ([]models.HistoryStok, error) {
 	var histories []models.HistoryStok

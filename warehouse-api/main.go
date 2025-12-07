@@ -24,6 +24,9 @@ func main() {
 	historyRepo := repositories.NewHistoryStokRepository(config.DB)
 	historyHandler := handlers.NewHistoryStokHandler(historyRepo)
 
+	pembelianRepo := repositories.NewPembelianRepository((config.DB))
+	pembelianHandler := handlers.NewPembelianHandler(pembelianRepo)
+
 	api := router.Group("/api")
 	{
 		api.GET("/barang", barangHandler.GetAllBarang)
@@ -35,6 +38,7 @@ func main() {
 		api.GET("/stok/:barang_id", stokHandler.GetStokByBarang)
 		api.GET("/history-stok", historyHandler.GetAllHistory)
 		api.GET("/history-stok/:barang_id", historyHandler.GetHistoryByBarang)
+		api.POST("/pembelian", pembelianHandler.CreatePembelian)
 	}
 
 	log.Println("🚀 Server running on :8080")
