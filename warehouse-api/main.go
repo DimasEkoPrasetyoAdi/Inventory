@@ -4,55 +4,63 @@ import (
 	"log"
 	"warehouse-api/config"
 	"warehouse-api/handlers"
+	"warehouse-api/middleware"
 	"warehouse-api/repositories"
 
 	"github.com/gin-gonic/gin"
 )
 
 func main() {
-
 	config.InitDB()
 
 	router := gin.Default()
 
 	barangRepo := repositories.NewBarangRepository(config.DB)
-	barangHandler := handlers.NewBarangHandler(barangRepo)
-
 	stokRepo := repositories.NewStokRepository(config.DB)
-	stokHandler := handlers.NewStokHandler(stokRepo)
-
 	historyRepo := repositories.NewHistoryStokRepository(config.DB)
-	historyHandler := handlers.NewHistoryStokHandler(historyRepo)
-
 	pembelianRepo := repositories.NewPembelianRepository(config.DB)
-	pembelianHandler := handlers.NewPembelianHandler(pembelianRepo)
-
 	penjualanRepo := repositories.NewPenjualanRepository(config.DB)
-	penjualanHandler := handlers.NewPenjualanHandler(penjualanRepo)
-
 	laporanRepo := repositories.NewLaporanRepository(config.DB)
+	userRepo := repositories.NewUserRepository(config.DB)
+
+	barangHandler := handlers.NewBarangHandler(barangRepo)
+	stokHandler := handlers.NewStokHandler(stokRepo)
+	historyHandler := handlers.NewHistoryStokHandler(historyRepo)
+	pembelianHandler := handlers.NewPembelianHandler(pembelianRepo)
+	penjualanHandler := handlers.NewPenjualanHandler(penjualanRepo)
 	laporanHandler := handlers.NewLaporanHandler(laporanRepo)
+	authHandler := handlers.NewAuthHandler(userRepo)
 
 	api := router.Group("/api")
+
+	api.POST("/login", authHandler.Login)
+	api.GET("/barang", barangHandler.GetAllBarang)
+	api.GET("/barang/:id", barangHandler.GetBarangByID)
+
+	auth := api.Group("/")
+	auth.Use(middleware.JWTAuth())
 	{
-		api.GET("/barang", barangHandler.GetAllBarang)
-		api.GET("/barang/:id", barangHandler.GetBarangByID)
-		api.GET("/barang/stok", barangHandler.GetBarangWithStok)
-		api.POST("/barang", barangHandler.CreateBarang)
-		api.PUT("/barang/:id", barangHandler.UpdateBarang)
-		api.GET("/stok", stokHandler.GetAllStok)
-		api.GET("/stok/:barang_id", stokHandler.GetStokByBarang)
-		api.GET("/history-stok", historyHandler.GetAllHistory)
-		api.GET("/history-stok/:barang_id", historyHandler.GetHistoryByBarang)
-		api.POST("/pembelian", pembelianHandler.CreatePembelian)
-		api.GET("/pembelian", pembelianHandler.GetAllPembelian)
-		api.GET("/pembelian/:id", pembelianHandler.GetPembelianByID)
-		api.POST("/penjualan", penjualanHandler.CreatePenjualan)
-		api.GET("/penjualan", penjualanHandler.GetAllPenjualan)
-		api.GET("/penjualan/:id", penjualanHandler.GetPenjualanByID)
-		api.GET("/laporan/stok", laporanHandler.GetLaporanStok)
-		api.GET("/laporan/penjualan", laporanHandler.GetLaporanPenjualan)
-		api.GET("/laporan/pembelian", laporanHandler.GetLaporanPembelian)
+
+		auth.POST("/barang", barangHandler.CreateBarang)
+		auth.PUT("/barang/:id", barangHandler.UpdateBarang)
+
+		auth.GET("/barang/stok", barangHandler.GetBarangWithStok)
+		auth.GET("/stok", stokHandler.GetAllStok)
+		auth.GET("/stok/:barang_id", stokHandler.GetStokByBarang)
+		auth.GET("/history-stok", historyHandler.GetAllHistory)
+		auth.GET("/history-stok/:barang_id", historyHandler.GetHistoryByBarang)
+
+		auth.POST("/pembelian", pembelianHandler.CreatePembelian)
+		auth.GET("/pembelian", pembelianHandler.GetAllPembelian)
+		auth.GET("/pembelian/:id", pembelianHandler.GetPembelianByID)
+
+		auth.POST("/penjualan", penjualanHandler.CreatePenjualan)
+		auth.GET("/penjualan", penjualanHandler.GetAllPenjualan)
+		auth.GET("/penjualan/:id", penjualanHandler.GetPenjualanByID)
+
+		auth.GET("/laporan/stok", laporanHandler.GetLaporanStok)
+		auth.GET("/laporan/penjualan", laporanHandler.GetLaporanPenjualan)
+		auth.GET("/laporan/pembelian", laporanHandler.GetLaporanPembelian)
 	}
 
 	log.Println("🚀 Server running on :8080")
