@@ -136,3 +136,18 @@ func (r *PembelianRepository) GetAllPembelian(startDate, endDate string) ([]mode
 
 	return pembelians, nil
 }
+
+
+func (r *PembelianRepository) GetPembelianByID(id uint) (*models.PembelianHeader, error) {
+	var pembelian models.PembelianHeader
+
+	if err := r.DB.
+		Preload("User").
+		Preload("Details").
+		Preload("Details.Barang").
+		First(&pembelian, id).Error; err != nil {
+		return nil, err
+	}
+
+	return &pembelian, nil
+}

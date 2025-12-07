@@ -40,6 +40,7 @@ func main() {
 		api.GET("/history-stok/:barang_id", historyHandler.GetHistoryByBarang)
 		api.POST("/pembelian", pembelianHandler.CreatePembelian)
 		api.GET("/pembelian", pembelianHandler.GetAllPembelian)
+		api.GET("/pembelian/:id", pembelianHandler.GetPembelianByID)
 	}
 
 	log.Println("🚀 Server running on :8080")
