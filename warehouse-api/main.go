@@ -2,18 +2,38 @@ package main
 
 import (
 	"log"
+	"os"
+	"time"
 	"warehouse-api/config"
 	"warehouse-api/handlers"
 	"warehouse-api/middleware"
 	"warehouse-api/repositories"
 
+	"github.com/joho/godotenv"
+
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
 
 func main() {
+	if err := godotenv.Load(); err != nil {
+		log.Println("No .env file found, using environment variables/defaults")
+	}
+
 	config.InitDB()
 
 	router := gin.Default()
+
+	clientOrigin := os.Getenv("CLIENT_PORT")
+
+	router.Use(cors.New(cors.Config{
+		AllowOrigins:     []string{clientOrigin},
+		AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
+		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
+		ExposeHeaders:    []string{"Content-Length"},
+		AllowCredentials: true,
+		MaxAge:           12 * time.Hour,
+	}))
 
 	barangRepo := repositories.NewBarangRepository(config.DB)
 	stokRepo := repositories.NewStokRepository(config.DB)
